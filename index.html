@@ -92,7 +92,9 @@
                 <option value="1">1 day before</option>
                 <option value="3" selected>3 days before</option>
                 <option value="7">7 days before</option>
+                <option value="custom">Custom…</option>
               </select>
+              <input type="number" id="event-remind-custom" min="0" step="1" placeholder="Days" style="margin-left:8px; width:90px;" hidden>
             </label>
           </div>
           <div class="row inline">
@@ -127,6 +129,11 @@
 
   <footer class="footer">
     <p>Made with love and a lot of yellow.</p>
+    <div class="data-tools" style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap; align-items:center; justify-content:center;">
+      <button id="export-btn" class="btn-outline" type="button">Export JSON</button>
+      <button id="import-btn" class="btn-outline" type="button">Import JSON</button>
+      <input id="import-file" type="file" accept="application/json" hidden>
+    </div>
   </footer>
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>

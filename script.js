@@ -1,6 +1,8 @@
 (() => {
   let db = null;
   const memory = { photos: [], videos: [], events: [], wishlist: [], seq: {photos:1, videos:1, events:1, wishlist:1} };
+  let currentEditEventId = null;
+  const SNOOZE_KEY = 'scrapbook-snoozes-v1';
 
   const $ = sel => document.querySelector(sel);
   const $$ = sel => document.querySelectorAll(sel);
@@ -98,6 +100,18 @@
   function setAnimations(){
     gsap.from('.hero-inner', {y:-20, opacity:0, duration:.8, ease:'power2.out'});
     gsap.from('.top-nav a', {y:6, opacity:0, stagger:.06, duration:.5, ease:'power2.out', delay:.2});
+  }
+
+  function getSnoozes(){
+    try{
+      return JSON.parse(localStorage.getItem(SNOOZE_KEY) || '{}');
+    }catch(_){ return {}; }
+  }
+
+  function setSnooze(key, untilTs){
+    const map = getSnoozes();
+    map[key] = untilTs;
+    localStorage.setItem(SNOOZE_KEY, JSON.stringify(map));
   }
 
   // Photos
@@ -241,12 +255,20 @@
       e.preventDefault();
       const title = $('#event-title').value.trim();
       const date = $('#event-date').value;
-      const remindDays = parseInt($('#event-remind').value, 10);
+      const remindSel = $('#event-remind').value;
+      const remindDays = remindSel === 'custom' ? Math.max(0, parseInt($('#event-remind-custom').value || '0', 10)) : parseInt(remindSel, 10);
       const recurring = $('#event-recurring').checked;
       if(!title || !date) return;
-      await storeAdd('events', { title, date, remindDays, recurring, createdAt:Date.now() });
+      if(currentEditEventId){
+        await storePut('events', { id: currentEditEventId, title, date, remindDays, recurring, createdAt: Date.now() });
+      }else{
+        await storeAdd('events', { title, date, remindDays, recurring, createdAt:Date.now() });
+      }
+      currentEditEventId = null;
       $('#event-title').value = '';
       $('#event-date').value = '';
+      $('#event-remind').value = '3';
+      $('#event-remind-custom').hidden = true;
       $('#event-form-wrap').hidden = true;
       showToast('Event saved');
       await renderCalendar();
@@ -256,6 +278,14 @@
     await renderCalendar();
     await renderUpcoming();
     requestNotificationPermission();
+
+    // Handle custom reminder UI
+    $('#event-remind').addEventListener('change', () => {
+      const sel = $('#event-remind').value;
+      const custom = $('#event-remind-custom');
+      custom.hidden = sel !== 'custom';
+      if(sel !== 'custom') custom.value = '';
+    });
   }
 
   function shiftMonth(delta){
@@ -314,6 +344,9 @@
         wrap.hidden = false;
         $('#event-date').value = dateStr;
         $('#event-title').focus();
+        currentEditEventId = null;
+        $('#event-remind').value = '3';
+        $('#event-remind-custom').hidden = true;
         gsap.from(wrap, {opacity:0, y:10, duration:.2});
       });
 
@@ -341,10 +374,15 @@
       .sort((a,b) => a.days - b.days);
 
     list.innerHTML = '';
+    const snoozes = getSnoozes();
     withDays.forEach(({ev, days, occurrence}) => {
       const li = document.createElement('li');
       const dateDisp = occurrence.toLocaleDateString(undefined,{month:'short', day:'numeric'});
-      li.textContent = `${ev.title} — ${days === 0 ? 'Today!' : `${days} day${days>1?'s':''}`} (${dateDisp})`;
+      const keyBase = `${ev.title}|${ev.date}|${ev.remindDays}|${ev.recurring}`;
+      const occurKey = `${keyBase}|${occurrence.toISOString().slice(0,10)}`;
+      const snoozedUntil = snoozes[occurKey] ? new Date(snoozes[occurKey]) : null;
+      const isSnoozedActive = snoozedUntil && snoozedUntil > now;
+      li.textContent = `${ev.title} — ${days === 0 ? 'Today!' : `${days} day${days>1?'s':''}`} (${dateDisp})${isSnoozedActive ? ' (snoozed)' : ''}`;
 
       const btnWrap = document.createElement('div');
       btnWrap.style.float = 'right';
@@ -363,11 +401,50 @@
         }
       });
 
+      const edit = document.createElement('button');
+      edit.textContent = 'Edit';
+      edit.style.marginRight = '6px';
+      edit.addEventListener('click', async () => {
+        const all = await storeGetAll('events');
+        const match = all.find(e => e.title === ev.title && e.date === ev.date && e.remindDays === ev.remindDays && e.recurring === ev.recurring);
+        if(match){
+          currentEditEventId = match.id;
+          const wrap = $('#event-form-wrap');
+          wrap.hidden = false;
+          $('#event-title').value = match.title;
+          $('#event-date').value = match.date;
+          const preset = ['1','3','7'].includes(String(match.remindDays)) ? String(match.remindDays) : 'custom';
+          $('#event-remind').value = preset;
+          const custom = $('#event-remind-custom');
+          custom.hidden = preset !== 'custom';
+          if(preset === 'custom') custom.value = String(match.remindDays);
+          $('#event-recurring').checked = !!match.recurring;
+          $('#event-title').focus();
+          gsap.from(wrap, {opacity:0, y:10, duration:.2});
+        }
+      });
+
+      const snooze = document.createElement('button');
+      snooze.textContent = 'Snooze';
+      snooze.style.marginRight = '6px';
+      snooze.addEventListener('click', async () => {
+        const input = prompt('Snooze for how many days?', '1');
+        if(input === null) return;
+        const n = Math.max(0, parseInt(input, 10));
+        const until = new Date();
+        until.setDate(until.getDate() + n);
+        setSnooze(occurKey, until.getTime());
+        showToast(`Snoozed for ${n} day${n===1?'':'s'}`);
+        await renderUpcoming();
+      });
+
+      btnWrap.appendChild(edit);
+      btnWrap.appendChild(snooze);
       btnWrap.appendChild(del);
       li.appendChild(btnWrap);
       list.appendChild(li);
 
-      if(days <= ev.remindDays){
+      if(!isSnoozedActive && days <= ev.remindDays){
         notify(`${ev.title} in ${days} day${days===1?'':'s'}`);
       }
       gsap.from(li, {opacity:0, y:8, duration:.3, ease:'power2.out'});
@@ -464,5 +541,74 @@
     await setupVideos();
     await setupCalendar();
     await setupWishlist();
+
+    // Export / Import
+    const exportBtn = document.getElementById('export-btn');
+    const importBtn = document.getElementById('import-btn');
+    const importFile = document.getElementById('import-file');
+
+    async function exportData(){
+      const [events, wishlist] = await Promise.all([
+        storeGetAll('events'),
+        storeGetAll('wishlist'),
+      ]);
+      const payload = {
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        events: events.map(({id, ...rest}) => rest),
+        wishlist: wishlist.map(({id, ...rest}) => rest),
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const y = new Date();
+      const fname = `scrapbook-export-${y.getFullYear()}${String(y.getMonth()+1).padStart(2,'0')}${String(y.getDate()).padStart(2,'0')}.json`;
+      a.href = url;
+      a.download = fname;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('Exported events and wishlist (media not included)');
+    }
+
+    async function importData(file){
+      try{
+        const text = await file.text();
+        const data = JSON.parse(text);
+        if(!data || typeof data !== 'object') throw new Error('Invalid file');
+        const [existingEvents, existingWishlist] = await Promise.all([
+          storeGetAll('events'),
+          storeGetAll('wishlist'),
+        ]);
+
+        // Merge events (dedupe by title+date+remindDays+recurring)
+        for(const ev of data.events || []){
+          const dup = existingEvents.find(e => e.title === ev.title && e.date === ev.date && e.remindDays === ev.remindDays && e.recurring === ev.recurring);
+          if(!dup){
+            await storeAdd('events', { title: ev.title, date: ev.date, remindDays: ev.remindDays ?? 3, recurring: !!ev.recurring, createdAt: Date.now() });
+          }
+        }
+
+        // Merge wishlist (dedupe by text)
+        for(const it of data.wishlist || []){
+          const dup = existingWishlist.find(w => w.text === it.text);
+          if(!dup){
+            await storeAdd('wishlist', { text: it.text, done: !!it.done, createdAt: Date.now() });
+          }
+        }
+
+        await renderCalendar();
+        await renderUpcoming();
+        await renderWishlist(document.getElementById('wishlist-list'));
+        showToast('Import complete');
+      }catch(err){
+        showToast('Failed to import file');
+      }
+    }
+
+    if(exportBtn){ exportBtn.addEventListener('click', exportData); }
+    if(importBtn){ importBtn.addEventListener('click', () => importFile && importFile.click()); }
+    if(importFile){ importFile.addEventListener('change', async () => { const f = importFile.files && importFile.files[0]; if(f) await importData(f); importFile.value=''; }); }
   });
 })();
