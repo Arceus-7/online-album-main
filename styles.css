@@ -1,0 +1,173 @@
+:root{
+  --bg:#fffbea;
+  --bg2:#fff4c2;
+  --primary:#ffd54f;
+  --primary-2:#ffec99;
+  --accent:#ffce45;
+  --text:#3b3b3b;
+  --shadow:rgba(0,0,0,0.08);
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+html,body{height:100%}
+body{
+  margin:0;
+  color:var(--text);
+  font-family: "Quicksand", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  background: radial-gradient(1200px 600px at 20% -10%, var(--primary-2), transparent) fixed,
+              radial-gradient(900px 500px at 100% 0%, var(--bg2), transparent) fixed,
+              var(--bg);
+}
+
+/* Hero */
+.hero{
+  padding:48px 20px 24px;
+  text-align:center;
+  background: linear-gradient(180deg, var(--primary-2), var(--bg));
+}
+.hero-inner{
+  max-width:1040px; margin:0 auto;
+}
+.hero h1{
+  margin:0 0 8px;
+  font-family:"Patrick Hand", cursive;
+  font-size:42px;
+  color:#2f2f2f;
+}
+.hero p{margin:0 0 16px; font-size:18px;}
+.hero-actions{display:flex; gap:10px; justify-content:center; flex-wrap:wrap}
+
+/* Navigation */
+.top-nav{
+  position:sticky; top:0; z-index:10;
+  display:flex; gap:8px; justify-content:center;
+  padding:10px 12px;
+  backdrop-filter:saturate(160%) blur(8px);
+  background: color-mix(in oklab, var(--bg), white 25%);
+  border-bottom: 1px dashed color-mix(in oklab, var(--primary), black 8%);
+}
+
+/* Buttons */
+.btn, .btn-outline{
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:10px 14px; border-radius:999px; font-weight:700;
+  text-decoration:none; cursor:pointer; transition:transform .12s ease, box-shadow .12s ease;
+}
+.btn{ background:linear-gradient(180deg, var(--accent), var(--primary)); color:#2a2a2a; box-shadow:0 8px 14px var(--shadow); border:1px solid color-mix(in oklab, var(--accent), black 10%); }
+.btn:hover{ transform:translateY(-2px) }
+.btn:active{ transform:translateY(0) scale(.98) }
+
+.btn-outline{
+  background: transparent; color:#2a2a2a;
+  border: 2px dashed color-mix(in oklab, var(--accent), black 10%);
+}
+.btn-outline:hover{ background: color-mix(in oklab, var(--primary-2), white 16%); }
+
+/* Sections */
+main{max-width:1100px; margin:0 auto; padding:22px}
+.section{margin:22px 0 42px}
+.section h2{
+  font-family:"Patrick Hand", cursive;
+  font-size:32px; margin:0 0 16px; letter-spacing:.5px;
+  border-bottom: 3px double color-mix(in oklab, var(--accent), black 12%);
+  display:inline-block; padding-bottom:6px;
+}
+
+/* Form Card */
+.card{
+  background:white; border-radius:20px;
+  box-shadow: 0 10px 24px var(--shadow);
+  border: 1px solid color-mix(in oklab, var(--primary), black 12%);
+}
+.form-card{ padding:14px; display:flex; gap:12px; align-items:center; flex-wrap:wrap }
+
+/* File input */
+.file-input{
+  position:relative; overflow:hidden; border-radius:14px; border:1px dashed color-mix(in oklab, var(--accent), black 12%);
+  background: color-mix(in oklab, var(--primary-2), white 10%); color:#2a2a2a; padding:10px 12px; cursor:pointer;
+}
+.file-input input{ position:absolute; inset:0; opacity:0; cursor:pointer }
+.form-card input[type="text"], .form-card input[type="date"], .form-card select{
+  flex:1 1 240px; min-width:180px; padding:10px 12px; border-radius:12px;
+  border:1px solid color-mix(in oklab, var(--primary), black 12%); background:white;
+}
+
+/* Grid for gallery */
+.grid{
+  margin-top:14px;
+  display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap:16px;
+}
+
+/* Polaroid style card */
+.media-card{
+  position:relative; background:#fff; border-radius:16px;
+  box-shadow: 0 16px 26px var(--shadow);
+  border: 10px solid #fff;
+  transform: rotate(-0.4deg);
+}
+.media-card:nth-child(2n){ transform: rotate(0.6deg) }
+.media-card:nth-child(3n){ transform: rotate(-1.1deg) }
+.media-thumb{ width:100%; height:240px; object-fit:cover; border-radius:8px }
+.media-footer{ padding:10px 8px; display:flex; align-items:center; justify-content:space-between; gap:8px }
+.media-caption{ font-size:14px }
+.media-actions{ display:flex; gap:8px }
+.media-actions button{ border:none; background:transparent; cursor:pointer; color:#a33; font-weight:700 }
+
+/* Video element */
+.media-card video{ width:100%; height:240px; border-radius:8px; background:#000 }
+
+/* Calendar */
+.calendar-controls{ display:flex; align-items:center; gap:12px; margin-bottom:10px }
+.month-label{ font-weight:700; padding:6px 10px; background: color-mix(in oklab, var(--primary-2), white 18%); border-radius:10px; border:1px dashed color-mix(in oklab, var(--accent), black 12%) }
+.calendar{ background:white; border-radius:20px; box-shadow: 0 10px 24px var(--shadow); overflow:hidden; border:1px solid color-mix(in oklab, var(--primary), black 12%) }
+.calendar-weekdays, .calendar-grid{ display:grid; grid-template-columns: repeat(7, 1fr) }
+.calendar-weekdays{ background: color-mix(in oklab, var(--primary-2), white 8%); padding:8px }
+.calendar-weekdays>div{ text-align:center; font-weight:700; color:#444 }
+.calendar-grid{ padding:8px }
+.day{
+  min-height:92px; border:1px dashed color-mix(in oklab, var(--primary), black 10%); margin:6px; border-radius:12px; padding:6px;
+  background: color-mix(in oklab, var(--bg), white 10%);
+  display:flex; flex-direction:column; gap:6px;
+}
+.day .num{ font-weight:700; color:#2a2a2a }
+.day .events{ display:flex; flex-wrap:wrap; gap:4px }
+.event-dot{ width:8px; height:8px; border-radius:50%; background: var(--accent); box-shadow:0 2px 6px var(--shadow) }
+.day.today{ outline:3px solid color-mix(in oklab, var(--accent), black 12%); }
+
+/* Event form + Upcoming */
+.event-form-wrap{ margin-top:12px }
+.upcoming{ margin-top:16px }
+.upcoming h3{ font-family:"Patrick Hand"; margin:0 0 8px }
+.upcoming-list{ list-style:none; padding:0; margin:0; display:grid; gap:8px; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) }
+.upcoming-list li{
+  background:white; border-radius:14px; border:1px solid color-mix(in oklab, var(--primary), black 12%); padding:10px 12px; box-shadow:0 8px 16px var(--shadow)
+}
+
+/* Wishlist */
+.wishlist{ list-style:none; padding:0; margin:14px 0 0; display:grid; gap:10px }
+.wishlist li{ display:flex; align-items:center; justify-content:space-between; gap:10px; background:white; border:1px solid color-mix(in oklab, var(--primary), black 12%); border-radius:14px; padding:10px 12px; box-shadow:0 8px 16px var(--shadow) }
+.wishlist .text{ flex:1 }
+.wishlist .actions{ display:flex; gap:8px }
+.wishlist button{ border:none; background:transparent; cursor:pointer; color:#a33; font-weight:700 }
+.wishlist input[type="checkbox"]{ width:20px; height:20px }
+.wishlist .done .text{ text-decoration:line-through; opacity:.7 }
+
+/* Footer */
+.footer{ text-align:center; padding:24px 0 48px; color:#4a4a4a }
+
+/* Toast */
+.toast{
+  position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+  background:linear-gradient(180deg, var(--accent), var(--primary));
+  color:#2a2a2a; padding:10px 12px; border-radius:999px; box-shadow:0 16px 28px var(--shadow);
+  border:1px solid color-mix(in oklab, var(--accent), black 10%);
+}
+
+/* Responsive */
+@media (max-width:720px){
+  .hero h1{ font-size:36px }
+  .media-thumb, .media-card video{ height:200px }
+  .day{ min-height:80px }
+}

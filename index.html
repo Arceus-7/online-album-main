@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Our Yellow Scrapbook</title>
+  <meta name="description" content="A cute shared photo album, videos, calendar and wishlist.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <h1>Our Yellow Scrapbook</h1>
+      <p>Photos, videos, dates and wishes — all in one place.</p>
+      <div class="hero-actions">
+        <a class="btn" href="#photos">Photo Gallery</a>
+        <a class="btn" href="#videos">Video Section</a>
+        <a class="btn" href="#calendar">Calendar</a>
+        <a class="btn" href="#wishlist">Wishlist</a>
+      </div>
+    </div>
+  </header>
+
+  <nav class="top-nav" aria-label="Primary">
+    <a href="#photos">Photos</a>
+    <a href="#videos">Videos</a>
+    <a href="#calendar">Calendar</a>
+    <a href="#wishlist">Wishlist</a>
+  </nav>
+
+  <main>
+
+    <section id="photos" class="section">
+      <h2>Photo Gallery</h2>
+      <form id="photo-form" class="card form-card" aria-label="Add photo">
+        <label class="file-input">
+          <input type="file" id="photo-file" accept="image/*" capture="environment" aria-label="Choose photo">
+          <span>Choose a photo</span>
+        </label>
+        <input type="text" id="photo-caption" placeholder="Add a cute caption" aria-label="Caption">
+        <button type="submit" class="btn">Add Photo</button>
+      </form>
+      <div id="photo-grid" class="grid"></div>
+    </section>
+
+    <section id="videos" class="section">
+      <h2>Video Section</h2>
+      <form id="video-form" class="card form-card" aria-label="Add video">
+        <label class="file-input">
+          <input type="file" id="video-file" accept="video/*" capture="camcorder" aria-label="Choose video">
+          <span>Choose a video</span>
+        </label>
+        <input type="text" id="video-caption" placeholder="Add a sweet caption" aria-label="Caption">
+        <button type="submit" class="btn">Add Video</button>
+      </form>
+      <div id="video-grid" class="grid"></div>
+    </section>
+
+    <section id="calendar" class="section">
+      <h2>Our Calendar</h2>
+
+      <div class="calendar-controls">
+        <button id="prev-month" class="btn-outline" aria-label="Previous month">‹</button>
+        <div id="current-month" class="month-label" aria-live="polite"></div>
+        <button id="next-month" class="btn-outline" aria-label="Next month">›</button>
+      </div>
+
+      <div class="calendar" role="grid" aria-label="Calendar">
+        <div class="calendar-weekdays">
+          <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+        </div>
+        <div id="calendar-grid" class="calendar-grid" role="rowgroup"></div>
+      </div>
+
+      <div id="event-form-wrap" class="card form-card event-form-wrap" hidden>
+        <form id="event-form" aria-label="Add event">
+          <div class="row">
+            <input type="text" id="event-title" placeholder="Event title (e.g., Anniversary)" required>
+          </div>
+          <div class="row">
+            <label>Date
+              <input type="date" id="event-date" required>
+            </label>
+          </div>
+          <div class="row">
+            <label>Remind me
+              <select id="event-remind">
+                <option value="1">1 day before</option>
+                <option value="3" selected>3 days before</option>
+                <option value="7">7 days before</option>
+              </select>
+            </label>
+          </div>
+          <div class="row inline">
+            <label class="checkbox">
+              <input type="checkbox" id="event-recurring" checked>
+              <span>Repeat every year</span>
+            </label>
+          </div>
+          <div class="row">
+            <button type="submit" class="btn">Save Event</button>
+            <button type="button" id="event-cancel" class="btn-outline">Cancel</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="upcoming" class="upcoming">
+        <h3>Upcoming</h3>
+        <ul id="upcoming-list" class="upcoming-list"></ul>
+      </div>
+    </section>
+
+    <section id="wishlist" class="section">
+      <h2>Wishlist</h2>
+      <form id="wishlist-form" class="card form-card" aria-label="Add wishlist item">
+        <input type="text" id="wishlist-input" placeholder="Add a gift or experience" required>
+        <button type="submit" class="btn">Add</button>
+      </form>
+      <ul id="wishlist-list" class="wishlist"></ul>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <p>Made with love and a lot of yellow.</p>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script defer src="script.js"></script>
+</body>
+</html>
